@@ -1,4 +1,4 @@
-package ponyfx.di
+package leviysoft.ponyfx.di
 
 import scala.reflect.runtime.universe._
 import scala.reflect.runtime.currentMirror
