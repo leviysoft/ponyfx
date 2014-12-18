@@ -9,7 +9,7 @@ import javafx.stage.Stage
 import leviysoft.ponyfx.di.Container
 import leviysoft.ponyfx.serialization.Serializer
 import leviysoft.ponyfx.views.DialogResult.DialogResult
-import leviysoft.ponyfx.views.{DialogResult, SimpleView}
+import leviysoft.ponyfx.views.SimpleView
 
 import scala.reflect.runtime.universe._
 
@@ -19,13 +19,14 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     clazz.getResource(s"${decapitalize(clazz.getSimpleName)}.fxml")
   }
 
-  private def createStage[T <: Stage](caption: Option[String]): T = {
+  private def createStage[T : TypeTag](caption: Option[String]): T = {
     val view = container.get[T]
+    val viewStage = view.asInstanceOf[Stage]
     val loader = new FXMLLoader(resolveResourceUrl[T]())
     loader.setController(view)
     val root = loader.load[Parent]
-    view.setTitle(caption.getOrElse(view.getClass.getSimpleName))
-    view.setScene(new Scene(root, root.prefWidth(-1.0), root.prefHeight(-1.0)))
+    viewStage.setTitle(caption.getOrElse(view.getClass.getSimpleName))
+    viewStage.setScene(new Scene(root, root.prefWidth(-1.0), root.prefHeight(-1.0)))
     view
   }
 
@@ -35,9 +36,9 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
 
   override def edit[T](model: T): OperationResult[T] = ???
 
-  override def show[TView <: SimpleView](): DialogResult = {
+  override def show[TView <: SimpleView : TypeTag](): DialogResult = {
     val view = createStage[TView](None)
     view.showAndWait()
-    DialogResult.OK
+    view.viewResult
   }
 }

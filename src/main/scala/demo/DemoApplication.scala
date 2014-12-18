@@ -9,5 +9,6 @@ class DemoApplication extends Application {
   override def start(primaryStage: Stage): Unit = {
     val container = new AppContainer
     val application = container.get[PonyApplication]
+    application.show[MainForm]()
   }
 }
