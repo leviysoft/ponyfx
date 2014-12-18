@@ -1,7 +1,7 @@
 package leviysoft.ponyfx
 
-import com.sun.jnlp.ApiDialog.DialogResult
 import leviysoft.ponyfx.serialization.Serializer
+import leviysoft.ponyfx.views.DialogResult.DialogResult
 import leviysoft.ponyfx.views.SimpleView
 
 trait TPonyApplication {
