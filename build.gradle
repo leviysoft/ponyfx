@@ -27,7 +27,7 @@ build.dependsOn(copyToLib)
 jar {
     manifest {
         attributes (
-            'Main-Class': 'demo.App',
+            'Main-Class': 'demo.DemoApplication',
             'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
         )
     }
