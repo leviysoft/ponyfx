@@ -1,12 +1,15 @@
 package leviysoft.ponyfx.views
 
+import javafx.beans.value.{ObservableValue, ChangeListener}
+import javafx.scene.control.TextField
 import javafx.stage.Stage
 
+import leviysoft.ponyfx.PonyApplication
 import leviysoft.ponyfx.views.DialogResult.DialogResult
 
 import scala.collection.mutable
 
-abstract class View[T] extends Stage {
+abstract class View[T](val application: PonyApplication) extends Stage {
   protected var modelChanged: mutable.MutableList[T => Unit] = mutable.MutableList()
 
   private var vRes = DialogResult.None
@@ -24,7 +27,19 @@ abstract class View[T] extends Stage {
     this.close()
   }
 
-  protected def bind(): Unit = {
-
+  protected def bind[PropType, TView: View[T]](
+    propertyGetter: Unit => PropType,
+    propertySetter: PropType => Unit,
+    textFieldGetter: TView => TextField): Unit = {
+    val serializer = application.getSerializer[PropType]
+    val control = textFieldGetter(this.asInstanceOf[TView])
+    control.textProperty().addListener(new ChangeListener[String] {
+      override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
+        if (newValue != null) propertySetter(serializer.deserialize(newValue))
+      }
+    })
+    val handler = (m: T) => control.setText(serializer.serialize(propertyGetter()))
+    modelChanged += handler
+    handler(model)
   }
 }
