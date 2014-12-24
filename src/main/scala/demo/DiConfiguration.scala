@@ -11,4 +11,5 @@ trait DiConfiguration extends Bindings {
   bind[MainForm]()
   bind[ItemEditor]()
   bind[Item]()
+  bind[ItemController]()
 }
