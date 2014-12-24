@@ -21,24 +21,40 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     clazz.getResource(s"${decapitalize(clazz.getSimpleName)}.fxml")
   }
 
-  private def createStage[T <: Stage : TypeTag](caption: Option[String]): T = {
-    val view = container.get[T]
+  private def resolveStageResources[T <: Stage : TypeTag](view: T, caption: Option[String] = None): T = {
     val loader = new FXMLLoader(resolveResourceUrl[T]())
     loader.setController(view)
-    val root = loader.load[Parent]
+    val root = loader.load[Parent]()
     view.setTitle(caption.getOrElse(view.getClass.getSimpleName))
     view.setScene(new Scene(root, root.prefWidth(-1.0), root.prefHeight(-1.0)))
     view
   }
 
-  override def create[T](): OperationResult[T] = ???
+  override def create[T](): OperationResult[T] = {
+    val view = container.get[StronglyTypedView[T]]
+    view.model = container.get[T]
+    val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
+    viewStage.showAndWait()
 
-  override def getSerializer[T]: Serializer[T] = ???
+    processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanCreate[T]].create(v))
+  }
 
-  override def edit[T](model: T): OperationResult[T] = ???
+  override def getSerializer[T]: Serializer[T] = {
+    container.get[Serializer[T]]
+  }
+
+  override def edit[T](model: T): OperationResult[T] = {
+    val view = container.get[StronglyTypedView[T]]
+    view.model = model
+    val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
+    viewStage.showAndWait()
+
+    processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanEdit[T]].edit(v))
+  }
 
   override def show[TView <: Stage with SimpleView : TypeTag](): DialogResult = {
-    val view = createStage[TView](None)
+    var view = container.get[TView]
+    view = resolveStageResources(view)
     view.showAndWait()
     view.viewResult
   }
