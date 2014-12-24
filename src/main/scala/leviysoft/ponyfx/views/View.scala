@@ -12,7 +12,7 @@ abstract class View[T] extends Stage {
   private var vRes = DialogResult.None
   def viewResult = vRes
 
-  private var modelField: T = throw new IllegalArgumentException()
+  private var modelField: T = _
   def model = modelField
   def model_=(value: T) = {
     modelField = value

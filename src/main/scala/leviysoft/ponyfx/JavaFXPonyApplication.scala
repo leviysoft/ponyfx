@@ -1,7 +1,6 @@
 package leviysoft.ponyfx
 
 import java.beans.Introspector.decapitalize
-import java.net.URL
 import javafx.fxml.FXMLLoader
 import javafx.scene.{Parent, Scene}
 import javafx.stage.Stage
@@ -13,16 +12,11 @@ import leviysoft.ponyfx.views.DialogResult.DialogResult
 import leviysoft.ponyfx.views.{DialogResult, SimpleView, StronglyTypedView}
 
 import scala.reflect.runtime.universe._
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 class JavaFXPonyApplication(private val container: Container) extends PonyApplication{
-  private def resolveResourceUrl[T: TypeTag](): URL = {
-    val clazz = typeTag[T].mirror.runtimeClass(typeOf[T])
-    clazz.getResource(s"${decapitalize(clazz.getSimpleName)}.fxml")
-  }
-
   private def resolveStageResources[T : TypeTag](view: T, caption: Option[String] = None): T = {
-    val loader = new FXMLLoader(resolveResourceUrl[T]())
+    val loader = new FXMLLoader(view.getClass.getResource(s"${decapitalize(view.getClass.getSimpleName)}.fxml"))
     loader.setController(view)
     val root = loader.load[Parent]()
     view.asInstanceOf[Stage].setTitle(caption.getOrElse(view.getClass.getSimpleName))
