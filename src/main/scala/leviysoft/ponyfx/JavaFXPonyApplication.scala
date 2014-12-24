@@ -6,12 +6,14 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.{Parent, Scene}
 import javafx.stage.Stage
 
+import leviysoft.ponyfx.controllerTraits._
 import leviysoft.ponyfx.di.Container
 import leviysoft.ponyfx.serialization.Serializer
 import leviysoft.ponyfx.views.DialogResult.DialogResult
-import leviysoft.ponyfx.views.SimpleView
+import leviysoft.ponyfx.views.{DialogResult, SimpleView, StronglyTypedView}
 
 import scala.reflect.runtime.universe._
+import scala.util.{Try, Success, Failure}
 
 class JavaFXPonyApplication(private val container: Container) extends PonyApplication{
   private def resolveResourceUrl[T: TypeTag](): URL = {
@@ -39,5 +41,55 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     val view = createStage[TView](None)
     view.showAndWait()
     view.viewResult
+  }
+
+  private def processDialogResult[T: TypeTag](
+    dialogResult: DialogResult,
+    view: StronglyTypedView[T],
+    defaultAction: StronglyTypedView[T] => OperationResult[T]): OperationResult[T] = {
+    dialogResult match  {
+      case DialogResult.OK | DialogResult.Yes | DialogResult.No => defaultAction(view)
+      case DialogResult.Abort =>
+        val abortHandleResult = Try(container.get[HandlesAbort[T]]).map(h => h.onAbort(view))
+        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        abortHandleResult match {
+          case Success(abRes) => abRes
+          case Failure(_) => errorHandleResult match {
+            case Success(erRes) => erRes
+            case Failure(_) => defaultAction(view)
+          }
+        }
+      case DialogResult.Cancel =>
+        val cancelHandleResult = Try(container.get[HandlesCancel[T]]).map(h => h.onCancel(view))
+        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        cancelHandleResult match {
+          case Success(canRes) => canRes
+          case Failure(_) => errorHandleResult match {
+            case Success(erRes) => erRes
+            case Failure(_) => defaultAction(view)
+          }
+        }
+      case DialogResult.Ignore =>
+        val ignoreHandleResult = Try(container.get[HandlesIgnore[T]]).map(h => h.onIgnore(view))
+        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        ignoreHandleResult match {
+          case Success(igRes) => igRes
+          case Failure(_) => errorHandleResult match {
+            case Success(erRes) => erRes
+            case Failure(_) => defaultAction(view)
+          }
+        }
+      case DialogResult.Retry =>
+        val retryHandleResult = Try(container.get[HandlesRetry[T]]).map(h => h.onRetry(view))
+        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        retryHandleResult match {
+          case Success(retRes) => retRes
+          case Failure(_) => errorHandleResult match {
+            case Success(erRes) => erRes
+            case Failure(_) => defaultAction(view)
+          }
+        }
+      case _ => defaultAction(view)
+    }
   }
 }
