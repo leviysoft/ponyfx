@@ -30,7 +30,7 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     view
   }
 
-  override def create[T](): OperationResult[T] = {
+  override def create[T: TypeTag](): OperationResult[T] = {
     val view = container.get[StronglyTypedView[T]]
     view.model = container.get[T]
     val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
@@ -39,11 +39,11 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanCreate[T]].create(v))
   }
 
-  override def getSerializer[T]: Serializer[T] = {
+  override def getSerializer[T: TypeTag]: Serializer[T] = {
     container.get[Serializer[T]]
   }
 
-  override def edit[T](model: T): OperationResult[T] = {
+  override def edit[T: TypeTag](model: T): OperationResult[T] = {
     val view = container.get[StronglyTypedView[T]]
     view.model = model
     val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
