@@ -21,5 +21,6 @@ class MainForm(application: PonyApplication) extends Stage with SimpleView {
   }
 
   def create(event: ActionEvent): Unit = {
+    val result = application.create[Item]()
   }
 }

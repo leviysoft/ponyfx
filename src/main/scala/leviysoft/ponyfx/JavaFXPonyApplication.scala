@@ -21,19 +21,19 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     clazz.getResource(s"${decapitalize(clazz.getSimpleName)}.fxml")
   }
 
-  private def resolveStageResources[T <: Stage : TypeTag](view: T, caption: Option[String] = None): T = {
+  private def resolveStageResources[T : TypeTag](view: T, caption: Option[String] = None): T = {
     val loader = new FXMLLoader(resolveResourceUrl[T]())
     loader.setController(view)
     val root = loader.load[Parent]()
-    view.setTitle(caption.getOrElse(view.getClass.getSimpleName))
-    view.setScene(new Scene(root, root.prefWidth(-1.0), root.prefHeight(-1.0)))
+    view.asInstanceOf[Stage].setTitle(caption.getOrElse(view.getClass.getSimpleName))
+    view.asInstanceOf[Stage].setScene(new Scene(root, root.prefWidth(-1.0), root.prefHeight(-1.0)))
     view
   }
 
   override def create[T: TypeTag](): OperationResult[T] = {
     val view = container.get[StronglyTypedView[T]]
     view.model = container.get[T]
-    val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
+    val viewStage = resolveStageResources(view)
     viewStage.showAndWait()
 
     processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanCreate[T]].create(v))
