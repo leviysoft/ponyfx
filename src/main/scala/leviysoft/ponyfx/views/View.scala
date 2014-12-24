@@ -8,6 +8,7 @@ import leviysoft.ponyfx.PonyApplication
 import leviysoft.ponyfx.views.DialogResult.DialogResult
 
 import scala.collection.mutable
+import scala.reflect.runtime.universe._
 
 abstract class View[T](val application: PonyApplication) extends Stage {
   protected var modelChanged: mutable.MutableList[T => Unit] = mutable.MutableList()
@@ -27,18 +28,18 @@ abstract class View[T](val application: PonyApplication) extends Stage {
     this.close()
   }
 
-  protected def bind[PropType, TView: View[T]](
-    propertyGetter: Unit => PropType,
+  protected def bind[PropType: TypeTag, TView <: View[T] : TypeTag](
+    property: => PropType,
     propertySetter: PropType => Unit,
     textFieldGetter: TView => TextField): Unit = {
-    val serializer = application.getSerializer[PropType]
+    val serializer = application.serializerOf[PropType]()
     val control = textFieldGetter(this.asInstanceOf[TView])
     control.textProperty().addListener(new ChangeListener[String] {
       override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
         if (newValue != null) propertySetter(serializer.deserialize(newValue))
       }
     })
-    val handler = (m: T) => control.setText(serializer.serialize(propertyGetter()))
+    val handler = (m: T) => control.setText(serializer.serialize(property))
     modelChanged += handler
     handler(model)
   }

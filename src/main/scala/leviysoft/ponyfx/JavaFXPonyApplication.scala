@@ -33,7 +33,7 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanCreate[T]].create(v))
   }
 
-  override def getSerializer[T: TypeTag]: Serializer[T] = {
+  override def serializerOf[T: TypeTag](): Serializer[T] = {
     container.get[Serializer[T]]
   }
 

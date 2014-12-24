@@ -12,5 +12,5 @@ trait PonyApplication {
   def create[T: TypeTag](): OperationResult[T]
   def edit[T: TypeTag](model: T): OperationResult[T]
   def show[TView <: Stage with SimpleView : TypeTag](): DialogResult
-  def getSerializer[T: TypeTag]: Serializer[T]
+  def serializerOf[T: TypeTag](): Serializer[T]
 }
