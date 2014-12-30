@@ -16,9 +16,8 @@ class ItemEditor(application: PonyApplication) extends View[Item](application) w
   @FXML var amountEditor: TextField = null
 
   @FXML def initialize(): Unit = {
-    //TODO: use appropriate DI
-    //bind(model.id, (i: Int) => model.id = i, (v: ItemEditor) => v.idEditor)
+    bind(model.id, (i: Int) => model.id = i, (v: ItemEditor) => v.idEditor)
     bind(model.name, (i: String) => model.name = i, (v: ItemEditor) => v.nameEditor)
-    //bind(model.amount, (i: Int) => model.amount = i, (v: ItemEditor) => v.amountEditor)
+    bind(model.amount, (i: Int) => model.amount = i, (v: ItemEditor) => v.amountEditor)
   }
 }

@@ -6,15 +6,15 @@ import javafx.scene.{Parent, Scene}
 import javafx.stage.Stage
 
 import leviysoft.ponyfx.controllerTraits._
-import leviysoft.ponyfx.di.Container
 import leviysoft.ponyfx.serialization.Serializer
 import leviysoft.ponyfx.views.DialogResult.DialogResult
 import leviysoft.ponyfx.views.{DialogResult, SimpleView, StronglyTypedView}
+import scaldi.{Injectable, Injector}
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-class JavaFXPonyApplication(private val container: Container) extends PonyApplication{
+class JavaFXPonyApplication(implicit private val inj: Injector) extends PonyApplication with Injectable{
   private def resolveStageResources[T : TypeTag](view: T, caption: Option[String] = None): T = {
     val loader = new FXMLLoader(view.getClass.getResource(s"${decapitalize(view.getClass.getSimpleName)}.fxml"))
     loader.setController(view)
@@ -25,29 +25,29 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
   }
 
   override def create[T: TypeTag](): OperationResult[T] = {
-    val view = container.get[StronglyTypedView[T]]
-    view.model = container.get[T]
+    val view = inject[StronglyTypedView[T]]
+    view.model = inject[T]
     val viewStage = resolveStageResources(view)
     viewStage.showAndWait()
 
-    processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanCreate[T]].create(v))
+    processDialogResult(viewStage.viewResult, viewStage, (v) => inject[CanCreate[T]].create(v))
   }
 
   override def serializerOf[T: TypeTag](): Serializer[T] = {
-    container.get[Serializer[T]]
+    inject[Serializer[T]]
   }
 
   override def edit[T: TypeTag](model: T): OperationResult[T] = {
-    val view = container.get[StronglyTypedView[T]]
+    val view = inject[StronglyTypedView[T]]
     view.model = model
     val viewStage = resolveStageResources(view.asInstanceOf[Stage]).asInstanceOf[StronglyTypedView[T]]
     viewStage.showAndWait()
 
-    processDialogResult(viewStage.viewResult, viewStage, (v) => container.get[CanEdit[T]].edit(v))
+    processDialogResult(viewStage.viewResult, viewStage, (v) => inject[CanEdit[T]].edit(v))
   }
 
   override def show[TView <: Stage with SimpleView : TypeTag](): DialogResult = {
-    var view = container.get[TView]
+    var view = inject[TView]
     view = resolveStageResources(view)
     view.showAndWait()
     view.viewResult
@@ -60,8 +60,8 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
     dialogResult match  {
       case DialogResult.OK | DialogResult.Yes | DialogResult.No => defaultAction(view)
       case DialogResult.Abort =>
-        val abortHandleResult = Try(container.get[HandlesAbort[T]]).map(h => h.onAbort(view))
-        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        val abortHandleResult = Try(inject[HandlesAbort[T]]).map(h => h.onAbort(view))
+        lazy val errorHandleResult = Try(inject[HandlesErrors[T]]).map(h => h.onError(view))
         abortHandleResult match {
           case Success(abRes) => abRes
           case Failure(_) => errorHandleResult match {
@@ -70,8 +70,8 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
           }
         }
       case DialogResult.Cancel =>
-        val cancelHandleResult = Try(container.get[HandlesCancel[T]]).map(h => h.onCancel(view))
-        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        val cancelHandleResult = Try(inject[HandlesCancel[T]]).map(h => h.onCancel(view))
+        lazy val errorHandleResult = Try(inject[HandlesErrors[T]]).map(h => h.onError(view))
         cancelHandleResult match {
           case Success(canRes) => canRes
           case Failure(_) => errorHandleResult match {
@@ -80,8 +80,8 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
           }
         }
       case DialogResult.Ignore =>
-        val ignoreHandleResult = Try(container.get[HandlesIgnore[T]]).map(h => h.onIgnore(view))
-        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        val ignoreHandleResult = Try(inject[HandlesIgnore[T]]).map(h => h.onIgnore(view))
+        lazy val errorHandleResult = Try(inject[HandlesErrors[T]]).map(h => h.onError(view))
         ignoreHandleResult match {
           case Success(igRes) => igRes
           case Failure(_) => errorHandleResult match {
@@ -90,8 +90,8 @@ class JavaFXPonyApplication(private val container: Container) extends PonyApplic
           }
         }
       case DialogResult.Retry =>
-        val retryHandleResult = Try(container.get[HandlesRetry[T]]).map(h => h.onRetry(view))
-        lazy val errorHandleResult = Try(container.get[HandlesErrors[T]]).map(h => h.onError(view))
+        val retryHandleResult = Try(inject[HandlesRetry[T]]).map(h => h.onRetry(view))
+        lazy val errorHandleResult = Try(inject[HandlesErrors[T]]).map(h => h.onError(view))
         retryHandleResult match {
           case Success(retRes) => retRes
           case Failure(_) => errorHandleResult match {

@@ -14,7 +14,8 @@ repositories {
 dependencies {
     compile "org.scala-lang:scala-library:$scalaVersion"
     compile "org.scala-lang:scala-reflect:$scalaVersion"
-    testCompile "junit:junit:4.11"
+    compile 'org.scaldi:scaldi_2.11:0.4'
+    testCompile "junit:junit:4.12"
 }
 
 task copyToLib(type: Copy) {

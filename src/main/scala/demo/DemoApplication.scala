@@ -3,12 +3,12 @@ package demo
 import javafx.application.Application
 import javafx.stage.Stage
 
-import leviysoft.ponyfx.PonyApplication
+import leviysoft.ponyfx.JavaFXPonyApplication
 
 class DemoApplication extends Application {
   override def start(primaryStage: Stage): Unit = {
-    val container = new AppContainer
-    val application = container.get[PonyApplication]
+    implicit val injector = new DiConfiguration
+    val application = new JavaFXPonyApplication()
     application.show[MainForm]()
   }
 }
