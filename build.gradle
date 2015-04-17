@@ -23,6 +23,10 @@ task copyToLib(type: Copy) {
     from configurations.runtime
 }
 
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
 build.dependsOn(copyToLib)
 
 jar {
