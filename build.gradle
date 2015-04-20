@@ -1,5 +1,5 @@
 buildscript {
-    ext.scalaVersion = "2.11.5"
+    ext.scalaVersion = "2.11.6"
 }
 
 apply plugin: 'scala'
@@ -14,7 +14,7 @@ repositories {
 dependencies {
     compile "org.scala-lang:scala-library:$scalaVersion"
     compile "org.scala-lang:scala-reflect:$scalaVersion"
-    compile 'org.scaldi:scaldi_2.11:0.5.3'
+    compile 'org.scaldi:scaldi_2.11:0.5.4'
     testCompile "junit:junit:4.12"
 }
 
