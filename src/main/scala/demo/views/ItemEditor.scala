@@ -7,12 +7,10 @@ import javafx.scene.control.{Button, TextField}
 import demo.domain.Item
 import leviysoft.ponyfx.PonyApplication
 import leviysoft.ponyfx.util.EventListenerConstructor._
-import leviysoft.ponyfx.views.DialogResult.DialogResult
 import leviysoft.ponyfx.views.{DialogResult, StronglyTypedView, View}
 
 class ItemEditor(application: PonyApplication) extends View[Item](application) with StronglyTypedView[Item] {
   override var model: Item = _
-  override val viewResult: DialogResult = DialogResult.None
   @FXML var idEditor: TextField = null
   @FXML var nameEditor: TextField = null
   @FXML var amountEditor: TextField = null
