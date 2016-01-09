@@ -8,7 +8,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warning
 
 libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "org.scaldi" %% "scaldi" % "0.5.4"
+  "org.scaldi" %% "scaldi" % "0.5.7"
 )
 
 jfxSettings
