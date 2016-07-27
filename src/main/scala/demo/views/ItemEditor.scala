@@ -6,7 +6,6 @@ import javafx.scene.control.{Button, TextField}
 
 import demo.domain.Item
 import leviysoft.ponyfx.PonyApplication
-import leviysoft.ponyfx.util.EventListenerConstructor._
 import leviysoft.ponyfx.views.{DialogResult, StronglyTypedView, View}
 
 class ItemEditor(application: PonyApplication) extends View[Item](application) with StronglyTypedView[Item] {

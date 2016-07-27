@@ -7,7 +7,6 @@ import javafx.stage.Stage
 
 import demo.domain.Item
 import leviysoft.ponyfx.{OperationStatus, PonyApplication}
-import leviysoft.ponyfx.util.EventListenerConstructor._
 import leviysoft.ponyfx.views.DialogResult.DialogResult
 import leviysoft.ponyfx.views.{DialogResult, SimpleView}
 

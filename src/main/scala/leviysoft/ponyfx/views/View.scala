@@ -1,6 +1,6 @@
 package leviysoft.ponyfx.views
 
-import javafx.beans.value.{ObservableValue, ChangeListener}
+import javafx.beans.value.ObservableValue
 import javafx.scene.control.TextField
 import javafx.stage.Stage
 
@@ -34,10 +34,8 @@ abstract class View[T](val application: PonyApplication) extends Stage {
     textFieldGetter: TView => TextField): Unit = {
     val serializer = application.serializerOf[PropType]()
     val control = textFieldGetter(this.asInstanceOf[TView])
-    control.textProperty().addListener(new ChangeListener[String] {
-      override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
-        if (newValue != null) propertySetter(serializer.deserialize(newValue))
-      }
+    control.textProperty().addListener((observable: ObservableValue[_ <: String], oldValue: String, newValue: String) => {
+      if (newValue != null) propertySetter(serializer.deserialize(newValue))
     })
     val handler = (m: T) => control.setText(serializer.serialize(property))
     modelChanged += handler
